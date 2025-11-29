@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Botão Expansível Centralizado</title>
+<style>
+    body {
+        background: #1f1f1f;
+        padding: 40px;
+        font-family: Arial, sans-serif;
+        color: #fff;
+    }
+
+    .row {
+        margin: 40px 0;
+        position: relative;
+        height: 40px;
+    }
+
+    /* Botão centralizado que expande para os dois lados */
+    .actions {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        width: 40px;
+        height: 32px;
+        background: #333;
+        color: #fff;
+        border-radius: 6px;
+        cursor: pointer;
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        transition: width 0.25s ease;
+    }
+
+    /* "..." inicial */
+    .dots {
+        position: absolute;
+        opacity: 1;
+        transition: opacity 0.2s ease, transform 0.25s ease;
+        font-size: 18px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        transform: scale(1);
+    }
+
+    /* Novo conteúdo */
+    .options {
+        display: flex;
+        gap: 10px;
+        padding: 0 10px;
+
+        opacity: 0;
+        transform: scale(0.7); /* vem do centro */
+        transition: opacity 0.2s ease, transform 0.25s ease;
+    }
+
+    .opt {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    /* Hover: expande para os dois lados */
+    .actions:hover {
+        width: 120px;
+    }
+
+    /* Transição do conteúdo */
+    .actions:hover .dots {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+
+    .actions:hover .options {
+        opacity: 1;
+        transform: scale(1);
+    }
+</style>
+</head>
+<body>
+
+<h2>Botão Expansível Centralizado</h2>
+
+<div class="row">
+    <div class="actions">
+        <span class="dots">...</span>
+        <span class="options">
+            <button class="opt">Editar</button>
+            <button class="opt">Excluir</button>
+        </span>
+    </div>
+</div>
+
+</body>
+</html>
