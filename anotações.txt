@@ -1,0 +1,13 @@
+
+============= (06-12-2025) =============
+
+Terminei o protótipo da função select() do módulo
+db.py, com isso, falta testa-lá e aplicar presets
+mais avançados.
+
+============= (08-12-2025) =============
+
+O módulo db.py está praticamente feito para uso,
+além de já ter sido testado.
+Com isso, falta criar as rotas e os processamentos
+do Flask e, por fim, o frontend.

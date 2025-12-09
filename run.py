@@ -1,1 +1,3 @@
-from tests import db_tests
+from rich.traceback import install
+
+install()

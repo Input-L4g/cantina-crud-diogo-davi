@@ -1,104 +1,157 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Botão Expansível Centralizado</title>
-<style>
-    body {
-        background: #1f1f1f;
-        padding: 40px;
-        font-family: Arial, sans-serif;
-        color: #fff;
-    }
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Nova Ementa Digital</title>
+        <link rel="stylesheet" href="../static/css/base.css" />
+        <link rel="stylesheet" href="../static/css/style.css">
+    </head>
+    <body>
+        <header>
+            <p>Nova Ementa digital</p>
+        </header>
+        <main>
+            <div class="table">
+                <div class="column checkbox">
+                    <div class="cell header">
+                        <div class="all-checkbox">
+                            <input type="checkbox" />
+                        </div>
+                    </div>
+                    <div class="cell">
+                        <input type="checkbox" />
+                    </div>
+                </div>
+                <div class="column name">
+                    <div class="cell header">
+                        <p>NOME</p>
+                    </div>
+                    <div class="cell">
+                        <p>Coxinha</p>
+                    </div>
+                </div>
+                <div class="column category">
+                    <div class="cell header">
+                        <p>CATEGORIA</p>
+                    </div>
+                    <div class="cell">
+                        <p>Salgado</p>
+                    </div>
+                </div>
+                <div class="column price">
+                    <div class="cell header">
+                        <p>PREÇO</p>
+                    </div>
+                    <div class="cell">
+                        <p>R$ 9.50</p>
+                    </div>
+                </div>
+                <div class="column action">
+                    <div class="cell header">
+                        <p>AÇÃO</p>
+                        <button id="btn-delete-selected">
+                            <img src="./img/delete-icon.webp" />
+                        </button>
+                    </div>
+                    <div class="cell">
+                        <p>ALGO</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <div class="overlay">
+            <dialog>
+                <div class="dialog-container">
+                    <div class="head delete-selected">
+                        <p id="dialog-text">
+                            Tem certeza que deseja excluir todos os
+                            selecionados?
+                        </p>
+                    </div>
+                    <div class="tail">
+                        <button class="btn-red-dialog">EXCLUIR</button>
+                        <button class="btn-green-dialog">CONFIRMAR</button>
+                    </div>
+                    <div class="head search">
+                        <h2>Buscar e Ordenar</h2>
+                        <input
+                            type="text"
+                            placeholder="Buscar Produto..."
+                            class="search-input" />
+                        <label for="order-by">Ordenar por:</label>
+                        <select id="order-by" class="order-select">
+                            <option>Mais recente</option>
+                            <option>Nome (A-Z)</option>
+                            <option>Preço (maior)</option>
+                        </select>
+                    </div>
+                    <div class="head add-product">
+                        <h2> Adicionar Produto </h2>
+                        <label> Nome: </label>
+                        <input  class="nome add-product" type='text' placeholder="EX: Coxinha">
+                        <p>Categoria:</p> <select class="category-add-product">
+                        <option>Salgado</option>
+                        <option>Bebida</option>
+                        <option>Refeições</option>
+                        <option>Guloseimas</option>
+                        <p>Preço</p> <input  class="preco add-product" placeholder="R$  0,00">
+                    </div>
+                </div>
+            </dialog>
+        </div>
 
-    .row {
-        margin: 40px 0;
-        position: relative;
-        height: 40px;
-    }
+        <div class="fixed-actions-container">
+            <button id="search-icon" class="fixed-lupa-button">🔍</button>
+            <button id="btn-add" class="fixed-add-button">+</button>
+            </div>
+        <script>
+      const dialog = document.querySelector("dialog");
+      /** @type {HTMLDivElement} */
+      const dialogContainer = document.querySelector(".dialog-container");
+      /** @type {HTMLDivElement} */
+      const overlay = document.querySelector(".overlay");
+      const btnOpenDialog = document.querySelector("#btn-delete-selected");
+      const overlayOpenEvent = new Event("overlayOpen");
+      const overlayCloseEvent = new Event("overlayClose");
+      const searchIcon = document.getElementById('search-icon');
+      const searchModal = document.getElementById('search-drawer');
+      const closeButton = document.getElementById('close-drawer-button');
+      let currentInterval = null;
 
-    /* Botão centralizado que expande para os dois lados */
-    .actions {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+      document.addEventListener("overlayOpen", () => {
+        dialog.show();
+        dialogContainer.style.opacity = "1";
+        dialog.style.zIndex = "101";
+        overlay.style.zIndex = "100";
+      });
+      document.addEventListener("overlayClose", () => {
+        if (currentInterval !== null) clearInterval(currentInterval);
+        const handler = () => {
+          dialog.close();
+          overlay.style.zIndex = "-1";
+        };
+        dialogContainer.style.opacity = "0";
+        currentInterval = (handler, 200);
+        if (overlay.style.zIndex !== "-1") overlay.style.zIndex = "-1";
+        if (dialog.open) dialog.close();
+      });
+      btnOpenDialog.addEventListener("click", () => {
+        document.dispatchEvent(overlayOpenEvent);
+      });
+      document.addEventListener("keydown", (key) => {
+        if (key.key === "Escape") {
+          document.dispatchEvent(overlayCloseEvent);
+        }
+      });
+      overlay.addEventListener("click", () => {
+        document.dispatchEvent(overlayCloseEvent);
+      });
+      searchIcon.addEventListener('click', () => {
+        searchDrawer.classList('is-open');
 
-        width: 40px;
-        height: 32px;
-        background: #333;
-        color: #fff;
-        border-radius: 6px;
-        cursor: pointer;
-        overflow: hidden;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        transition: width 0.25s ease;
-    }
-
-    /* "..." inicial */
-    .dots {
-        position: absolute;
-        opacity: 1;
-        transition: opacity 0.2s ease, transform 0.25s ease;
-        font-size: 18px;
-        font-weight: bold;
-        letter-spacing: 2px;
-        transform: scale(1);
-    }
-
-    /* Novo conteúdo */
-    .options {
-        display: flex;
-        gap: 10px;
-        padding: 0 10px;
-
-        opacity: 0;
-        transform: scale(0.7); /* vem do centro */
-        transition: opacity 0.2s ease, transform 0.25s ease;
-    }
-
-    .opt {
-        background: none;
-        border: none;
-        color: #fff;
-        font-size: 14px;
-        cursor: pointer;
-    }
-
-    /* Hover: expande para os dois lados */
-    .actions:hover {
-        width: 120px;
-    }
-
-    /* Transição do conteúdo */
-    .actions:hover .dots {
-        opacity: 0;
-        transform: scale(0.7);
-    }
-
-    .actions:hover .options {
-        opacity: 1;
-        transform: scale(1);
-    }
-</style>
-</head>
-<body>
-
-<h2>Botão Expansível Centralizado</h2>
-
-<div class="row">
-    <div class="actions">
-        <span class="dots">...</span>
-        <span class="options">
-            <button class="opt">Editar</button>
-            <button class="opt">Excluir</button>
-        </span>
-    </div>
-</div>
-
-</body>
+        overlay.classList.add('is-active');
+      });
+    </script>
+    </body>
 </html>
