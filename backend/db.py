@@ -15,8 +15,8 @@ from enum import Enum
 from mysql.connector import connect
 from mysql.connector.pooling import PooledMySQLConnection
 from mysql.connector.abstracts import MySQLConnectionAbstract, MySQLCursorAbstract
-from backend.enums import ProductCategory
-from backend.utils import to_unique_depth, get_even_elements, get_odd_elements
+from enums import ProductCategory
+from utils import to_unique_depth, get_even_elements, get_odd_elements
 
 # * ==============================
 # * == INICIALIZANDO CONSTANTES ==
@@ -193,14 +193,15 @@ def drop_db(*, force_drop: bool = False) -> None:
 #* CREATE
 def insert(
     name: str,
-    category: ProductCategory,
+    category: Union[ProductCategory, str],
     price: Union[float, Decimal, int]
 ) -> Optional[int]:
     """Insere um novo produto na tabela `produtos`."""
     if not isinstance(price, Decimal):
         price = Decimal(price)
-
-    values = (name, category.value, price)
+    if isinstance(category, ProductCategory):
+        category = category.value
+    values = (name, category, price)
     cmd = f"INSERT INTO {_TABLE_NAME_REFERENCE} ({", ".join(_TABLE_COLUMNS)}) VALUES (%s, %s, %s)"
     conn, cursor = start_connection()
     cursor.execute(cmd, values)
@@ -215,7 +216,7 @@ def select(
     order_by_columns: Union[Tuple[_ColumnsNamesLiteral, ...], Literal["*"]] = "*",
     group_by_columns: Union[Tuple[_ColumnsNamesLiteral, ...], Literal["*"]] = "*",
     **where_fields: Unpack[AllTableColumnsDict]
-) -> _SelectedItemsDict:
+) -> Optional[_SelectedItemsDict]:
     """Retorna uma seleção feita no SQL."""
     where_cmd = ""
     columns_cmd = "*"
@@ -223,7 +224,7 @@ def select(
     if selected_columns and selected_columns != "*":
         columns_cmd = ", ".join(selected_columns)
     if where_fields:
-        if where_fields.get("category") is not None:
+        if where_fields.get("category") is not None and isinstance(where_fields["category"], ProductCategory):
             where_fields["category"] = where_fields["category"].value
         if where_fields.get("price") is not None:
             where_fields["price"] = Decimal(where_fields["price"])
@@ -241,18 +242,27 @@ def select(
     conn, cursor = start_connection(dictionary_cursor=True)
     cursor.execute(cmd, (*where_fields.values(),)) # pyright: ignore[reportArgumentType]
 
-    selected_return: _SelectedItemsReturns
+    selected_return: _SelectedItemsDict
     selected_return = cursor.fetchall() # pyright: ignore[reportAssignmentType]
 
     close_connection(conn, cursor, with_commit=False)
-    return selected_return
+    for i, selected in enumerate(selected_return):
+        time_stamp = selected.get("time_stamp")
+        if time_stamp is not None and isinstance(time_stamp, datetime.datetime):
+            selected_return[i]["time_stamp"] = time_stamp.strftime("%d/%m/%Y - %H:%M:%S")
+    return selected_return or None
 
 #* UPDATE
 def update(
     *conditions: _WhereConditions, # (("name", "Coxinha"), ("price", 5.5), ...) -> Linhas procuradas
-    **set_fields: Unpack[TableColumnsDict] # {"name": "Maçã", "price": 4.2} -> Novos valores
+    **set_fields: Unpack[AllTableColumnsDict] # {"name": "Maçã", "price": 4.2} -> Novos valores
 ) -> Optional[int]:
-    """Atualiza um produto na tabela `produtos`."""
+    """
+    Atualiza um produto na tabela `produtos`.
+
+    Returns:
+        (int | None): Número de linhas que foram atualizadas.
+    """
     if not (conditions or set_fields):
         return None
     normalized_conditions = to_unique_depth(conditions, to=list)
@@ -261,7 +271,7 @@ def update(
             normalized_conditions[i] = condition.value
         elif isinstance(condition, (float, int)):
             normalized_conditions[i] = Decimal(condition)
-    if set_fields.get("category") is not None:
+    if set_fields.get("category") is not None and isinstance(set_fields["category"], ProductCategory):
         set_fields["category"] = set_fields["category"].value
     if set_fields.get("price") is not None:
         set_fields["price"] = Decimal(set_fields["price"])

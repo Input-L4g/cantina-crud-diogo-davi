@@ -15,7 +15,7 @@ def test_insert():
 
 def test_select():
     """Testa a função `select`."""
-    assert1 = db.select("name", name = "Coxinha")
+    assert1 = db.select(("name"), name = "Coxinha")
     expected1 = [{"name": "Coxinha"}]
     assert assert1 == expected1
 

@@ -12,7 +12,11 @@ AnyIterable: TypeAlias = Iterable[Any]
 T_KeyType = TypeVar("T_KeyType")
 T_ValueType = TypeVar("T_ValueType")
 _HTTPResponse = Tuple[Response, int]
-_HTTPResponsePresetLiteral = Literal["sql_error", "generic_internal_error"]
+_HTTPResponsePresetLiteral = Literal[
+    "sql_error", 
+    "generic_internal_error",
+    "bad_json"
+]
 
 def iterable_to_str(iterable: AnyIterable) -> Tuple[str, ...]:
     """
@@ -138,6 +142,8 @@ def http_response(
         return http_response(500, "Um erro interno de SQL ocorreu", error=error)
     if preset == "generic_internal_error":
         return http_response(500, "Um erro interno ocorreu", error=error)
+    if preset == "bad_json":
+        return http_response(400, "O JSON enviado é inválido.", error="JSON inválido.")
     response = {
         "success": 200 <= code <= 299,
         "message": message,
@@ -145,5 +151,12 @@ def http_response(
     if data is not None:
         response["data"] = data
     if error is not None:
-        response["error"] = error
+        if isinstance(error, BaseException):
+            error_info = {
+                "type": type(error).__name__,
+                "message": str(error)
+            }
+        else:
+            error_info = error
+        response["error"] = error_info
     return jsonify(response), code
