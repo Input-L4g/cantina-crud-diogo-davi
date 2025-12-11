@@ -11,3 +11,9 @@ O módulo db.py está praticamente feito para uso,
 além de já ter sido testado.
 Com isso, falta criar as rotas e os processamentos
 do Flask e, por fim, o frontend.
+
+============= (09-12-2025) =============
+
+Exibição do dialog está completa,
+Falta a troca dinâmica do conteúdo do dialog
+e a interação com o backend.

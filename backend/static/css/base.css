@@ -4,6 +4,10 @@
     padding: 0;
 }
 
+html {
+    font-size: clamp(14px, 0.361vw + 9.07px, 16px);
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -54,8 +58,7 @@ dialog:focus {
     background: none;
     border: none;
     transition:
-        background-color ease-in-out .2s
-        z-index ease-in-out .2s;
+        opacity ease-in-out .2s;
     background-color: rgba(0, 0, 0, 0.2);
     z-index: -1;
 }

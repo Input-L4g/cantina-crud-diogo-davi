@@ -13,7 +13,7 @@ T_KeyType = TypeVar("T_KeyType")
 T_ValueType = TypeVar("T_ValueType")
 _HTTPResponse = Tuple[Response, int]
 _HTTPResponsePresetLiteral = Literal[
-    "sql_error", 
+    "sql_error",
     "generic_internal_error",
     "bad_json"
 ]
@@ -139,9 +139,9 @@ def http_response(
 ) -> _HTTPResponse:
     """Retorna uma resposta HTTP usando jsonify."""
     if preset == "sql_error":
-        return http_response(500, "Um erro interno de SQL ocorreu", error=error)
+        return http_response(500, "Um erro interno de SQL ocorreu.", error=error)
     if preset == "generic_internal_error":
-        return http_response(500, "Um erro interno ocorreu", error=error)
+        return http_response(500, "Um erro interno ocorreu.", error=error)
     if preset == "bad_json":
         return http_response(400, "O JSON enviado é inválido.", error="JSON inválido.")
     response = {

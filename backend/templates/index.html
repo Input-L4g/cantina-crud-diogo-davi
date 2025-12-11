@@ -15,143 +15,104 @@
             <div class="table">
                 <div class="column checkbox">
                     <div class="cell header">
-                        <div class="all-checkbox">
-                            <input type="checkbox" />
-                        </div>
-                    </div>
-                    <div class="cell">
-                        <input type="checkbox" />
+                        <input id="all-checkbox" type="checkbox" />
                     </div>
                 </div>
                 <div class="column name">
                     <div class="cell header">
                         <p>NOME</p>
                     </div>
-                    <div class="cell">
-                        <p>Coxinha</p>
-                    </div>
                 </div>
                 <div class="column category">
                     <div class="cell header">
                         <p>CATEGORIA</p>
-                    </div>
-                    <div class="cell">
-                        <p>Salgado</p>
                     </div>
                 </div>
                 <div class="column price">
                     <div class="cell header">
                         <p>PREÇO</p>
                     </div>
-                    <div class="cell">
-                        <p>R$ 9.50</p>
-                    </div>
                 </div>
                 <div class="column action">
                     <div class="cell header">
                         <p>AÇÃO</p>
                         <button id="btn-delete-selected">
-                            <img src="./img/delete-icon.webp" />
+                            <img src="../static/img/delete-icon.webp" />
                         </button>
-                    </div>
-                    <div class="cell">
-                        <p>ALGO</p>
                     </div>
                 </div>
             </div>
         </main>
-        <div class="overlay">
-            <dialog>
-                <div class="dialog-container">
-                    <div class="head delete-selected">
-                        <p id="dialog-text">
-                            Tem certeza que deseja excluir todos os
-                            selecionados?
+        <div id="overlay" class="overlay">
+            <dialog id="dialog-modal">
+                <div id="dialog-modal-container" class="dialog-container">
+                    <div class="head delete">
+                        <p id="delete-title">
                         </p>
                     </div>
-                    <div class="tail">
-                        <button class="btn-red-dialog">EXCLUIR</button>
-                        <button class="btn-green-dialog">CONFIRMAR</button>
-                    </div>
                     <div class="head search">
-                        <h2>Buscar e Ordenar</h2>
                         <input
                             type="text"
                             placeholder="Buscar Produto..."
                             class="search-input" />
-                        <label for="order-by">Ordenar por:</label>
-                        <select id="order-by" class="order-select">
-                            <option>Mais recente</option>
-                            <option>Nome (A-Z)</option>
-                            <option>Preço (maior)</option>
-                        </select>
+                        <div class="tail-search">
+                            <label for="order-by">Ordenar por:</label>
+                            <select id="order-by" class="search-select">
+                                <option>Mais recente</option>
+                                <option>Nome (A-Z)</option>
+                                <option>Nome (Z-A)</option>
+                                <option>Preço (maior)</option>
+                                <option>Preço (menor)</option>
+                                <option>Categoria (A-Z)</option>
+                                <option>Categoria (Z-A)</option>
+                                <option>Mais recente</option>
+                                <option>Mais antigo</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="head add-product">
-                        <h2> Adicionar Produto </h2>
+                        <h2 id="add-product-title"> Adicionar Produto </h2>
                         <label> Nome: </label>
-                        <input  class="nome add-product" type='text' placeholder="EX: Coxinha">
-                        <p>Categoria:</p> <select class="category-add-product">
-                        <option>Salgado</option>
-                        <option>Bebida</option>
-                        <option>Refeições</option>
-                        <option>Guloseimas</option>
-                        <p>Preço</p> <input  class="preco add-product" placeholder="R$  0,00">
+                        <input id="input-add-product" class="nome-add-product"
+                            type='text' placeholder="Ex.: Coxinha">
+                        <div class="category-add-product">
+                            <label>Categoria:</label> <select
+                                id="select-category-product" class="category-product">
+                                <option value="">SELECIONE</option>
+                                <option value="Salgado">Salgado</option>
+                                <option value="Bebida">Bebida</option>
+                                <option value="Refeições">Refeições</option>
+                            </select>
+                        </div>
+                        <div class="preco-add-product">
+                            <label>Preço:</label><input id="price-add-product"
+                                class="preco-product" placeholder="R$  0,00">
+                        </div>
+                    </div>
+                    <div id="loading" class="head loading red">
+                        <div class="loading-container">
+                            <div class="loader"></div>
+                            <p id="loading-message">...</p>
+                        </div>
+                    </div>
+                    <div id="dialog-tail" class="tail">
+                        <button id="btn-red"
+                            class="btn-red-dialog"></button>
+                        <button id="btn-green"
+                            class="btn-green-dialog"></button>
                     </div>
                 </div>
             </dialog>
         </div>
 
         <div class="fixed-actions-container">
-            <button id="search-icon" class="fixed-lupa-button">🔍</button>
-            <button id="btn-add" class="fixed-add-button">+</button>
-            </div>
-        <script>
-      const dialog = document.querySelector("dialog");
-      /** @type {HTMLDivElement} */
-      const dialogContainer = document.querySelector(".dialog-container");
-      /** @type {HTMLDivElement} */
-      const overlay = document.querySelector(".overlay");
-      const btnOpenDialog = document.querySelector("#btn-delete-selected");
-      const overlayOpenEvent = new Event("overlayOpen");
-      const overlayCloseEvent = new Event("overlayClose");
-      const searchIcon = document.getElementById('search-icon');
-      const searchModal = document.getElementById('search-drawer');
-      const closeButton = document.getElementById('close-drawer-button');
-      let currentInterval = null;
+            <button id="btn-search" class="fixed-lupa-button">🔍</button>
+            <button id="btn-add-product" class="fixed-add-button">+</button>
+        </div>
+        <button id="button-alldown"><img src="../static/img/seta.webp"></button>
 
-      document.addEventListener("overlayOpen", () => {
-        dialog.show();
-        dialogContainer.style.opacity = "1";
-        dialog.style.zIndex = "101";
-        overlay.style.zIndex = "100";
-      });
-      document.addEventListener("overlayClose", () => {
-        if (currentInterval !== null) clearInterval(currentInterval);
-        const handler = () => {
-          dialog.close();
-          overlay.style.zIndex = "-1";
-        };
-        dialogContainer.style.opacity = "0";
-        currentInterval = (handler, 200);
-        if (overlay.style.zIndex !== "-1") overlay.style.zIndex = "-1";
-        if (dialog.open) dialog.close();
-      });
-      btnOpenDialog.addEventListener("click", () => {
-        document.dispatchEvent(overlayOpenEvent);
-      });
-      document.addEventListener("keydown", (key) => {
-        if (key.key === "Escape") {
-          document.dispatchEvent(overlayCloseEvent);
-        }
-      });
-      overlay.addEventListener("click", () => {
-        document.dispatchEvent(overlayCloseEvent);
-      });
-      searchIcon.addEventListener('click', () => {
-        searchDrawer.classList('is-open');
-
-        overlay.classList.add('is-active');
-      });
-    </script>
+        <script src="../static/js/index.js" type="module"></script>
+        <script src="../static/js/table.js" type="module"></script>
+        <script src="../static/js/app.js" type="module"></script>
     </body>
 </html>

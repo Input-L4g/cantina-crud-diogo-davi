@@ -13,7 +13,7 @@ class ProductCategory(Enum):
     - BEBIDAS = "bebidas"
     - REFEICOES = "refeições
     """
-    SALGADOS = "salgados"
-    DOCES = "doces"
-    BEBIDAS = "bebidas"
-    REFEICOES = "refeições"
+    SALGADOS = "salgado"
+    DOCES = "doce"
+    BEBIDAS = "bebida"
+    REFEICOES = "refeição"

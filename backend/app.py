@@ -1,9 +1,10 @@
-from typing import Union, Literal, List, Tuple, overload
+from typing import Union, Literal, List, Tuple
 from decimal import Decimal
 from flask import Flask, request, render_template
-from pydantic import BaseModel, ValidationError,
+from flask_cors import CORS
+from pydantic import BaseModel, ValidationError
 from pydantic_core import ErrorDetails
-from mysql.connector import Error as SQLError
+from mysql.connector import Error, IntegrityError, DataError, ProgrammingError, DatabaseError
 from utils import http_response, _HTTPResponse
 import enums
 import db
@@ -20,11 +21,13 @@ def is_valide_product_json(
         category: enums.ProductCategory
     try:
         _ = BaseProductDict(**product_dict)
-    except ValidationError as vError:
-        return False, vError.errors()
+    except ValidationError as VError:
+        return False, VError.errors()
     return True, None
 
+MYSQL_ERRORS = (Error, IntegrityError, DataError, ProgrammingError, DatabaseError)
 app = Flask(__name__, template_folder="templates", static_folder="static")
+CORS(app, resources={r"/api/*": {"origins": "http://127.0.0.1:5500"}})
 db.init_db()
 
 @app.route("/")
@@ -32,15 +35,25 @@ def index():
     """Rota da root."""
     return render_template("index.html")
 
+@app.route("/api/test", methods=["GET", "POST", "PUT", "DELETE"])
+def test():
+    """Rota para testar o funcionamento da API."""
+    try:
+        if request.method in ["POST", "PUT"]:
+            _ = request.get_json()
+        return http_response(200, "Teste feito, nenhum erro aparente")
+    except Exception as e:
+        return http_response(500, f"Teste falhado em método: {request.method}", error=e)
+
 @app.route("/api/products", methods=["GET"])
 def list_all_products() -> _HTTPResponse:
     """Retorna todos os produtos do DB."""
     try:
         all_products = db.select()
         if not all_products:
-            return http_response(204, "Nenhum produto foi criado ainda.")
+            return http_response(204, "Nenhum produto foi criado ainda.", data=[])
         return http_response(200, data=all_products)
-    except SQLError as e:
+    except MYSQL_ERRORS as e:
         return http_response(preset="sql_error", error=e)
     except Exception as e:
         return http_response(preset="generic_internal_error", error=e)
@@ -60,14 +73,17 @@ def create_product() -> _HTTPResponse:
                 "Os dados estão inválidos.",
                 error=error
             )
-        new_id = db.insert(**new_data)
+        try:
+            new_id = db.insert(**new_data)
+        except MYSQL_ERRORS as e:
+            return http_response(409, "Esse produto já existe", error=e)
         if new_id is None:
             raise Exception("Produto não encontrado no primeiro processo.")
         data = db.select(id=new_id)
         if data is None:
             raise Exception("Produto não encontrado no segundo processo.")
         return http_response(201, "Produto criado.", data=data[0])
-    except SQLError as e:
+    except MYSQL_ERRORS as e:
         return http_response(preset="sql_error", error=e)
     except Exception as e:
         return http_response(preset="generic_internal_error", error=e)
@@ -81,7 +97,7 @@ def get_product(id_: int) -> _HTTPResponse:
         if product is None:
             return http_response(404, "Produto não encontrado.")
         return http_response(message="Produto encontrado.", data=product[0])
-    except SQLError as e:
+    except MYSQL_ERRORS as e:
         return http_response(preset="sql_error", error=e)
     except Exception as e:
         return http_response(preset="generic_internal_error", error=e)
@@ -104,7 +120,7 @@ def update_product(id_: int) -> _HTTPResponse:
         if affected_lines in [0, None]:
             return http_response(404, error="Produto não encontrado.")
         return http_response(204, "Produto atualizado.")
-    except SQLError as e:
+    except MYSQL_ERRORS as e:
         return http_response(preset="sql_error", error=e)
     except Exception as e:
         return http_response(preset="generic_internal_error", error=e)
@@ -118,7 +134,7 @@ def delete_product(id_: int) -> _HTTPResponse:
             return http_response(404, error="Produto não encontado.")
         db.delete(("id", id_))
         return http_response(204, "O produto foi deletado.")
-    except SQLError as e:
+    except MYSQL_ERRORS as e:
         return http_response(preset="sql_error", error=e)
     except Exception as e:
         return http_response(preset="generic_internal_error", error=e)
