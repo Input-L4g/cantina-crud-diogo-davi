@@ -1,5 +1,8 @@
 # PROJETO CRUD COM FLASK, MYSQL E HTML/CSS/JS
 
+**Disponível em:**
+https://github.com/Input-L4g/cantina-crud-diogo-davi
+
 ## Integrantes
 - **Diogo Antunes**: Responsável pelo gerenciamento do projeto e desenvolvimento back-end (Python) e front-end (HTML/CSS/JS).
 - **Davi Augusto**: Responsável pelo início do front-end (HTML/CSS) e pela estruturação da página do site.
