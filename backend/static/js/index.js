@@ -1,3 +1,4 @@
+import { showLoading } from "./dialog.js";
 import {
     uncheckAllCheckBoxEvent,
     checkAllCheckBoxEvent,
@@ -61,3 +62,35 @@ mergeObjectInPlace(globalListenerArgs, {
 
 loadEventListeners();
 indexListeners();
+
+let tempIdTimeIntervalTest = null;
+
+/**
+ *Callback para realizar testes de conexão com a API e com o DB.
+ */
+function test() {
+    const loadingMessage = document.querySelector("loading-message")
+    let idTimeOut = null;
+    if (!window.testConnection()) {
+        window.dispatchEvent(closeOverlayEvent);
+        loadingMessage.innerHTML = `
+        <font color="red">Erro ao estabelecer conexão com a API.</font>`;
+        if (idTimeOut === null)
+            idTimeOut = setTimeout(
+                showLoading, 500
+            );
+    }
+    else if (!window.testDBConnection()) {
+        window.dispatchEvent(closeOverlayEvent);
+        loadingMessage.innerHTML = `
+        <font color="red">Erro ao estabelecer conexão com o Banco de dados.</font>`;
+        if (idTimeOut === null)
+            idTimeOut = setTimeout(
+                showLoading, 500
+            );
+    }
+}
+
+if (tempIdTimeIntervalTest === null) {
+    tempIdTimeIntervalTest = setInterval(test, 5000);
+}

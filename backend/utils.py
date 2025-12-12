@@ -15,7 +15,8 @@ _HTTPResponse = Tuple[Response, int]
 _HTTPResponsePresetLiteral = Literal[
     "sql_error",
     "generic_internal_error",
-    "bad_json"
+    "bad_json",
+    "db_connection_error"
 ]
 
 def iterable_to_str(iterable: AnyIterable) -> Tuple[str, ...]:
@@ -144,6 +145,10 @@ def http_response(
         return http_response(500, "Um erro interno ocorreu.", error=error)
     if preset == "bad_json":
         return http_response(400, "O JSON enviado é inválido.", error="JSON inválido.")
+    if preset == "db_connection_error":
+        return http_response(
+            503, "Sem conexão com o DB.", error={"message": "Erro ao se conectar com o DB."}
+        )
     response = {
         "success": 200 <= code <= 299,
         "message": message,

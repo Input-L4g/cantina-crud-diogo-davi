@@ -73,7 +73,7 @@ export function loadEventListeners() {
     });
     window.addEventListener("submitProduct", (e) => {
         const submitType = e.detail.submitType;
-        // console.log(submitType)
+        console.log(e.target);
         /** @type {Object<string, string>} */
         const { id, name, category, price } = e.detail.productData;
         if (submitType === "update") {
@@ -86,10 +86,12 @@ export function loadEventListeners() {
         const id = e.detail.productData.id;
         const rowsIds = getAllRowIds();
         if (e.detail.submitType === "delete-selected") {
-            id.forEach((id_) => {
+            id.forEach((id_, i, arr) => {
                 if (!rowsIds.includes(id_)) {
                     return;
                 }
+                if (i === arr[arr.length - 1])
+                    submitDeleteProduct(id_);
                 submitDeleteProduct(id_, false)
             })
         }

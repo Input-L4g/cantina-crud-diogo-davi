@@ -42,6 +42,28 @@ async function testConnection() {
     }
     return true;
 }
+
+/**
+ * Testa a conexão com o DB.
+ * @returns {boolean} Resultado do teste.
+ */
+async function testDBConnection() {
+    try {
+        // GET
+        let response = await fetch(API_TEST_URL + "/db", { method: "GET" });
+        let test = await response.json();
+        if (!test.success) console.log("FALHA (GET):", test.message);
+    } catch (e) {
+        if (e.message === "Failed to fetch") {
+            console.log("A API NÃO ESTÁ RODANDO!");
+        } else {
+            console.log("ERRO INTERNO:\n", e.message || e);
+        }
+        return false;
+    }
+    return true;
+}
+
 /**
  * Cria uma requisição JSON
  * @param {"GET" | "POST" | "PUT" | "DELETE"} requestMethod Método da requisição.
@@ -175,3 +197,4 @@ window.removeProductRequest = removeProductRequest;
 window.getProductRequest = getProductRequest;
 window.updateProductRequest = updateProductRequest;
 window.testConnection = testConnection;
+window.testDBConnection = testConnection;

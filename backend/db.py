@@ -14,6 +14,7 @@ import datetime
 from enum import Enum
 from mysql.connector import connect
 from mysql.connector.pooling import PooledMySQLConnection
+from mysql.connector.errors import DatabaseError
 from mysql.connector.abstracts import MySQLConnectionAbstract, MySQLCursorAbstract
 from enums import ProductCategory
 from utils import to_unique_depth, get_even_elements, get_odd_elements
@@ -28,7 +29,6 @@ _TABLE_NAME = 'produtos'
 _TABLE_NAME_REFERENCE = f"`{_TABLE_NAME}`"
 _TABLE_COLUMNS = ("name", "category", "price")
 _DATABASE_NAME_REFERENCE = f"`{_DATABASE_NAME}`"
-
 
 # * ===============================
 # * == DEFININDO TIPOS ESTÁTICOS ==
@@ -125,6 +125,14 @@ def _group_by_SQL(*group_columns: _ColumnsNamesLiteral) -> str:
 # * ======================
 # * == FUNÇÕES PÚBLICAS ==
 # * ======================
+
+def test_connection() -> bool:
+    """Testa a conexão com o banco de dados."""
+    try:
+        _get_global_connection()
+    except DatabaseError:
+        return False
+    return True
 
 def close_connection(
     conn: _Connection,

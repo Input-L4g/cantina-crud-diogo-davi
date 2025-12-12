@@ -1,6 +1,7 @@
 import { openOverlayEvent, submitProductEvent, removeProductEvent, closeOverlayEvent } from "./events.js";
 import { globalDialogContainer, buttonsOpenDialogMap, categories } from "./globals.js";
-import { getCheckedRows, getRow } from "./table.js";
+import { refeshTable } from "./submit.js";
+import { getCheckedRows, getRow, searchInTable } from "./table.js";
 import { getIdRowFromElement } from "./utils.js";
 
 /**
@@ -101,10 +102,23 @@ function loadDeleteContent(containerType, payload) {
 }
 
 function loadSearchContent(containerType) {
+    refeshTable();
     const targetClassName = "head search";
     if (containerType !== "search")
         return;
     const searchContainer = dialogContentsMap[targetClassName];
+    window.addEventListener("keydown", (e) => {
+        const input = searchContainer.querySelector(".search-input");
+        if (e.key === "Enter" && document.activeElement === input && input.value.trim() !== "") {
+            const search = searchInTable(input.value.trim());
+            if (search.length > 0) {
+                document.getElementById("search-message").textContent = "";
+                window.dispatchEvent(closeOverlayEvent);
+            } else
+                document.getElementById("search-message").textContent = "Produto não encontrado.";
+        }
+    });
+    setDisplayTo(displayOn, [dialogBtnGreen]);
     setDisplayTo(displayOn, [searchContainer]);
 }
 

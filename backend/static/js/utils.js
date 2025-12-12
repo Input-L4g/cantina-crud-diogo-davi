@@ -1,3 +1,15 @@
+export function parseBrazilianDate(title) {
+    if (!title.includes("Criado em:")) return null;
+
+    const raw = title.replace("Criado em:", "").trim(); 
+    // raw = "11/12/2025 - 08:46:55"
+
+    const [datePart, timePart] = raw.split(" - ");
+    const [day, month, year] = datePart.split("/");
+
+    // Criar data ISO: 2025-12-11T08:46:55
+    return new Date(`${year}-${month}-${day}T${timePart}`);
+}
 
 export function mergeObjectInPlace(o, newObj) {
     for (const key of Object.keys(newObj)) {

@@ -1,5 +1,63 @@
+import { closeOverlayEvent } from "./events.js";
 import { refeshTable } from "./submit.js";
-import { getIdRowFromElement } from "./utils.js";
+import { getIdRowFromElement, parseBrazilianDate } from "./utils.js";
+
+const sortByNewest = (a, b) => {
+    const dateA = parseBrazilianDate(a.getAttribute("title"));
+    const dateB = parseBrazilianDate(b.getAttribute("title"));
+
+    return dateB - dateA; 
+};
+
+const sortByOldest = (a, b) => {
+    const dateA = parseBrazilianDate(a.getAttribute("title"));
+    const dateB = parseBrazilianDate(b.getAttribute("title"));
+
+    return dateA - dateB;
+};
+
+const sortByNameAZ = (a, b) => {
+    const nameA = a.querySelector("p").textContent;
+    const nameB = b.querySelector("p").textContent;
+    return nameA.localeCompare(nameB, "pt-BR");  // Ordena de A-Z
+};
+const sortByNameZA = (a, b) => {
+    const nameA = a.querySelector("p").textContent;
+    const nameB = b.querySelector("p").textContent;
+    return nameB.localeCompare(nameA, "pt-BR");  // Ordena de Z-A
+};
+const sortByPriceHigh = (a, b) => {
+    const priceA = parseFloat(a.querySelector("p").textContent.replace("R$", "").trim());
+    const priceB = parseFloat(b.querySelector("p").textContent.replace("R$", "").trim());
+    return priceB - priceA;  // Preço maior vem primeiro
+};
+const sortByPriceLow = (a, b) => {
+    const priceA = parseFloat(a.querySelector("p").textContent.replace("R$", "").trim());
+    const priceB = parseFloat(b.querySelector("p").textContent.replace("R$", "").trim());
+    return priceA - priceB;  // Preço menor vem primeiro
+};
+const sortByCategoryAZ = (a, b) => {
+    const categoryA = a.querySelector("p").textContent;
+    const categoryB = b.querySelector("p").textContent;
+    return categoryA.localeCompare(categoryB, "pt-BR");  // Ordena de A-Z
+};
+const sortByCategoryZA = (a, b) => {
+    const categoryA = a.querySelector("p").textContent;
+    const categoryB = b.querySelector("p").textContent;
+    return categoryB.localeCompare(categoryA, "pt-BR");  // Ordena de Z-A
+};
+
+
+const sortCallbacks = {
+    "Mais recente": [sortByNewest, "name"],
+    "Mais antigo": [sortByOldest, "name"],
+    "Nome (A-Z)": [sortByNameAZ, "name"],
+    "Nome (Z-A)": [sortByNameZA, "name"],
+    "Preço (maior)": [sortByPriceHigh, "price"],
+    "Preço (menor)": [sortByPriceLow, "price"],
+    "Categoria (A-Z)": [sortByCategoryAZ, "category"],
+    "Categoria (Z-A)": [sortByCategoryZA, "category"]
+};
 
 const checkboxColumn = document.querySelector(".column.checkbox");
 const nameColumn = document.querySelector(".column.name");
@@ -238,5 +296,51 @@ export function allRowsHasChecked() {
     const columnLength = getColumnCells("checkbox").length;
     return countedRows === columnLength;
 }
+
+export function getAllRows(inArray = true) {
+    const ids = getAllRowIds();
+    return ids.map((id) => getRow(id, inArray));
+}
+
+export function searchInTable(searchName, searchCategory = null, searchPrice = null, startWith = true, autoRefesh = true) {
+    const rows = getAllRows(false);
+    const searchRow = rows.filter((row) => {
+        /**
+         * @type {Object<string, HTMLDivElement>}
+         */
+        const { name, category, price } = row;
+        if (searchName !== null) {
+            if (!startWith)
+                return price.textContent.toLowerCase() === searchPrice.toLowerCase();
+            return name.textContent.toLowerCase().startsWith(searchName.toLowerCase());
+        }
+        if (searchCategory !== null) {
+            if (!startWith)
+                return price.textContent.toLowerCase() === searchPrice.toLowerCase();
+            return category.textContent.toLowerCase().startsWith(searchCategory.toLowerCase());
+        }
+        if (searchPrice !== null) {
+            if (!startWith)
+                return price.textContent.toLowerCase() === searchPrice.toLowerCase();
+            return price.textContent.toLowerCase().startsWith(searchPrice.toLowerCase());
+        }
+        return true;
+    });
+    console.log(searchRow);
+    if (autoRefesh && searchRow.length > 0)
+        refeshTable(searchRow);
+    return searchRow;
+}
+
+document.querySelector("#order-by").addEventListener("change", e => {
+    const option = e.target.value;
+    const sortKey = sortCallbacks[option];
+    if (sortKey === null)
+        return;
+    sortColumns(sortKey[0], sortKey[1]);
+    window.dispatchEvent(closeOverlayEvent);
+});
+
+window.searchInTable = searchInTable;
 
 refeshTable();

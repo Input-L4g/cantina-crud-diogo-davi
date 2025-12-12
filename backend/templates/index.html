@@ -51,6 +51,7 @@
                         </p>
                     </div>
                     <div class="head search">
+                        <p id="search-message"></p>
                         <input
                             type="text"
                             placeholder="Buscar Produto..."
@@ -58,6 +59,7 @@
                         <div class="tail-search">
                             <label for="order-by">Ordenar por:</label>
                             <select id="order-by" class="search-select">
+                                <option>Mais antigo</option>
                                 <option>Mais recente</option>
                                 <option>Nome (A-Z)</option>
                                 <option>Nome (Z-A)</option>
@@ -65,8 +67,6 @@
                                 <option>Preço (menor)</option>
                                 <option>Categoria (A-Z)</option>
                                 <option>Categoria (Z-A)</option>
-                                <option>Mais recente</option>
-                                <option>Mais antigo</option>
                             </select>
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                                 <option value="">SELECIONE</option>
                                 <option value="Salgado">Salgado</option>
                                 <option value="Bebida">Bebida</option>
-                                <option value="Refeições">Refeições</option>
+                                <option value="Refeição">Refeição</option>
                             </select>
                         </div>
                         <div class="preco-add-product">
@@ -110,7 +110,8 @@
             <button id="btn-add-product" class="fixed-add-button">+</button>
         </div>
         <button id="button-alldown"><img src="../static/img/seta.webp"></button>
-
+        <script type="module">
+        </script>
         <script src="../static/js/index.js" type="module"></script>
         <script src="../static/js/table.js" type="module"></script>
         <script src="../static/js/app.js" type="module"></script>

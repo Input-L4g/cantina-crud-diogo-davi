@@ -1,6 +1,7 @@
 import { globalDialog, globalOverlay, globalDialogContainer } from "./globals.js";
 import { openDialogEvent } from "./events.js";
 import { loadDialogContent } from "./dialog.js";
+import { refeshTable } from "./submit.js"
 
 const closedDialogOpacity = "0";
 const openedDialogOpacity = "1";
@@ -61,7 +62,6 @@ export function onOpenOverlay(event) {
  */
 export function onCloseOverlay() {
     if (overlayIsOpen && timeOutId === null) {
-        console.log("FECHANDO OVERLAY")
         if (globalDialog.open)
             globalDialogContainer.style.opacity = closedDialogOpacity;
         timeOutId = setTimeout(
